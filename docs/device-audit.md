@@ -9,7 +9,7 @@
 | 内置 Linux 终端 | **有**：`com.android.virtualization.terminal` | `pm list packages` |
 | /data | 467 G，已用 38 G | `df -h /data` |
 | 内存 | 15.7 GB | `/proc/meminfo` |
-| 无线调试 | 192.168.10.58:44143，配对端口 38079 | `adb pair` / `adb connect` |
+| 调试方式 | 无线调试（IP/端口略） | `adb pair` / `adb connect` |
 
 ## 实测结论
 

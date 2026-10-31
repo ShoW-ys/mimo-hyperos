@@ -5,13 +5,19 @@
 Android 侧只有一个 WebView + 前台服务。
 
 - 已验证设备：小米平板 9 Pro Max（M367FC / yingtian），HyperOS 4.0，Android 17（SDK 37），arm64-v8a，PAGE_SIZE 4096
-- APK 大小：约 80 MB（含 45 MB mimo + 29 MB rootfs）
+- APK 大小：约 75 MB（含 45 MB mimo + 29 MB rootfs）
 - 首次启动需联网，3–8 分钟（apt 装 git / ripgrep / ttyd）
+
+> 非官方项目：与小米公司无隶属或背书关系，不使用小米商标与 Logo。
+
+| 原版 TUI | 应用内小米账号登录 |
+|---|---|
+| ![TUI](docs/screenshots/tui.png) | ![login](docs/screenshots/login-xiaomi.png) |
 
 ## 构建
 
 ```bash
-source scripts/env.sh          # JDK21 / SDK36 / Gradle 8.13，均在 F:\Android
+source scripts/env.sh          # JDK21 / SDK36 / Gradle 8.13（路径按需修改）
 python scripts/fetch-runtime.py # 下载并校验 rootfs / mimo / proot（会写 assets 与 jniLibs，不进 git）
 gradle :app:testDebugUnitTest
 gradle :app:assembleDebug
@@ -46,11 +52,11 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 | 项 | 说明 |
 |---|---|
-| 浏览器 OAuth 回调 | 回调端口在 rootfs 内，手机浏览器打不开；用 API Key 或 `adb forward` |
 | 插件（bun 生态） | 未装 bun |
 | LSP / 格式化 | `MIMOCODE_DISABLE_LSP_DOWNLOAD=1` 默认关闭 |
 | 拖拽图片 | 用 `@` 引用文件路径代替 |
 | 系统剪贴板/通知 | xterm.js 内长按可选；系统级桥接待做 |
+| 应用内登录页 | 与系统「小米账号」不通（第三方 APK 拿不到账号 SDK 权限），首次需输密码，之后靠 Cookie 记住 |
 
 ## 数据与回退
 
@@ -58,7 +64,27 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - **卸载 APK 即清空**；不改系统分区、不 root、不解锁 BL。
 - 需要手动还原的只有：电池策略「无限制」、自启动授权、USB/无线调试开关。
 
+## 项目结构
+
+```
+app/src/main/java/io/github/showys/mimoandroid/
+  MainActivity.kt        终端 WebView + 键盘工具条
+  LoginActivity.kt       应用内 OAuth 登录（WebView）
+  RuntimeService.kt      前台服务：解包 / 首配 / 起 ttyd / URL 桥
+  RuntimeInstaller.kt    资产释放 + rootfs 解包
+  Runtime.kt / Proot.kt  proot 参数与进程管理
+  Prefs.kt               少量设置
+app/src/main/assets/bootstrap/
+  provision.sh           首配：源、apt、mimo
+  setup-userland.sh      每次启动：xdg-open shim 等
+  start-ttyd.sh          ttyd + mimo TUI
+scripts/                 fetch-runtime.py / verify.sh / env.sh
+docs/                    设备审计、排障、安装卸载实测
+```
+
+已实测：卸载无残留、全新安装冷启动 68 s、覆盖安装 2–3 s 且数据保留（见 `docs/install-test.md`）。
+
 ## 许可证
 
-MiMoCode 为 MIT（另受其 Use Restrictions 约束）；Termux `proot` 为 GPLv2，因此本 APK 整体按 GPLv2 分发，
-源码即本仓库 + `termux/proot`；Ubuntu rootfs 各包遵循各自许可证。不使用小米商标/Logo。
+本项目代码 MIT（`LICENSE`）；打包进 APK 的第三方组件见 `THIRD_PARTY_NOTICES.md`
+（其中 Termux `proot` 为 GPLv2，分发 APK 时须一并提供其源码链接）。不使用小米商标/Logo。
