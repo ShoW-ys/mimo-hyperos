@@ -1,0 +1,13 @@
+build/
+.gradle/
+local.properties
+app/build/
+app/src/main/assets/runtime/*.gz
+app/src/main/assets/runtime/*.so
+app/src/main/assets/runtime/*.so.2
+app/src/main/assets/runtime/manifest.json
+app/src/main/jniLibs/arm64-v8a/*.so
+keystore/
+*.jks
+*.apk
+.DS_Store
