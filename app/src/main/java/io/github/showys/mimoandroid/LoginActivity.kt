@@ -23,6 +23,9 @@ import android.widget.TextView
  * 本 WebView 打开该地址即完成回调，TUI 自动变成已登录。
  */
 class LoginActivity : Activity() {
+    private val prefs by lazy { Prefs(this) }
+    private var rememberBrowser: android.widget.CheckBox? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val url = intent.getStringExtra(EXTRA_URL).orEmpty()
@@ -50,6 +53,15 @@ class LoginActivity : Activity() {
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
             },
         )
+        rememberBrowser = android.widget.CheckBox(this).apply {
+            text = "以后用浏览器"
+            setTextColor(Color.parseColor("#b8b8c0"))
+            isChecked = prefs.loginMode == Prefs.LOGIN_BROWSER
+            setOnCheckedChangeListener { _, checked ->
+                prefs.loginMode = if (checked) Prefs.LOGIN_BROWSER else Prefs.LOGIN_INAPP
+            }
+        }
+        bar.addView(rememberBrowser)
         bar.addView(
             Button(this).apply {
                 text = "改用浏览器"
@@ -63,6 +75,15 @@ class LoginActivity : Activity() {
             },
         )
         root.addView(bar, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+
+        root.addView(
+            TextView(this).apply {
+                text = "在此登录一次后会记住登录状态；若本机小米账号已在浏览器里登录，点「改用浏览器」通常只需确认一次授权。"
+                setTextColor(Color.parseColor("#8a8a94"))
+                textSize = 12f
+                setPadding(32, 12, 32, 12)
+            },
+        )
 
         val web = WebView(this).apply {
             settings.javaScriptEnabled = true
@@ -92,10 +113,16 @@ class LoginActivity : Activity() {
     }
 
     private fun openExternal(url: String) {
+        prefs.loginMode = Prefs.LOGIN_BROWSER
         val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         runCatching { startActivity(intent) }
             .onFailure { Log.w(Runtime.TAG, "no browser: ${it.message}") }
+    }
+
+    override fun onPause() {
+        CookieManager.getInstance().flush()
+        super.onPause()
     }
 
     companion object {

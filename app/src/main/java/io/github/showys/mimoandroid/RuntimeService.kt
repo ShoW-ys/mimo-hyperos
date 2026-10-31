@@ -101,11 +101,13 @@ class RuntimeService : Service() {
     }
 
     private fun openInBrowser(url: String) {
-        // 优先应用内 WebView：不触发 HyperOS 的链式启动确认
-        val inApp = Intent(this, LoginActivity::class.java)
-            .putExtra(LoginActivity.EXTRA_URL, url)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (runCatching { startActivity(inApp) }.isSuccess) return
+        // 默认应用内 WebView（不触发 HyperOS 链式启动）；用户在登录页勾了「以后用浏览器」则直接走系统浏览器
+        if (Prefs(this).loginMode != Prefs.LOGIN_BROWSER) {
+            val inApp = Intent(this, LoginActivity::class.java)
+                .putExtra(LoginActivity.EXTRA_URL, url)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if (runCatching { startActivity(inApp) }.isSuccess) return
+        }
 
         val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -33,12 +33,6 @@ class MainActivity : Activity() {
         root.addView(ScrollView(this).apply { addView(logView) }, FrameLayout.LayoutParams(-1, -1))
         setContentView(root)
 
-        if (Build.VERSION.SDK_INT >= 33 &&
-            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
-        }
-
         RuntimeService.onLog = { line -> runOnUiThread { logView.append("$line\n") } }
         RuntimeService.onReady = { port, pass -> runOnUiThread { showWeb(port, pass) } }
 
@@ -89,6 +83,13 @@ class MainActivity : Activity() {
         root.addView(w, FrameLayout.LayoutParams(-1, -1, 0))
         w.loadUrl(url)
         web = w
+
+        // 放到 TUI 起来之后再问通知权限，避免首次启动被系统弹窗挡住
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+        }
     }
 
     override fun onDestroy() {
