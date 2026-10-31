@@ -12,3 +12,4 @@ keystore/
 *.jks
 *.apk
 .DS_Store
+.cache/

@@ -20,6 +20,7 @@ import time
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CACHE = os.path.join(ROOT, ".cache")
 ASSETS = os.path.join(ROOT, "app", "src", "main", "assets", "runtime")
 JNI = os.path.join(ROOT, "app", "src", "main", "jniLibs", "arm64-v8a")
 
@@ -152,8 +153,9 @@ def materialize_hardlinks(src_path, dst_path):
 def main():
     os.makedirs(ASSETS, exist_ok=True)
     os.makedirs(JNI, exist_ok=True)
+    os.makedirs(CACHE, exist_ok=True)
 
-    ubuntu_src = os.path.join(ASSETS, "ubuntu-base-src.tar.gz")
+    ubuntu_src = os.path.join(CACHE, "ubuntu-base-src.tar.gz")
     ubuntu_path = os.path.join(ASSETS, "ubuntu-base.tgz")
     if not (os.path.exists(ubuntu_src) and sha256(open(ubuntu_src, "rb").read()) == UBUNTU_SHA):
         ubuntu = fetch(UBUNTU_URL)
