@@ -28,6 +28,20 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 底部工具条提供 Esc / Tab / Ctrl / Alt / 方向键 / Ctrl+C；`Tab` 切换 build/plan。
 
+## 登录小米账号
+
+终端里输入 `/login`（或 `/connect`）→ 选 `Xiaomi`：
+
+1. guest 里的 `mimo` 会调用 `xdg-open`（rootfs 里由 `setup-userland.sh` 提供 shim），
+   把授权 URL 写进 `files/runtime/open-url`；
+2. `RuntimeService` 监听到新 URL → 打开 **应用内 `LoginActivity`**（WebView 加载
+   `account.xiaomi.com` 登录页，不触发 HyperOS 的「链式启动」确认框）；
+3. 登录完成后小米重定向到 `http://localhost:<port>/`，该端口就是 guest 里 mimo 起的回调服务，
+   与 Android 共用 loopback，回调自动完成，TUI 直接进入已登录状态。
+
+登录页右上角「改用浏览器」会走系统浏览器（首次会弹 HyperOS 的「启动应用」确认，
+选「始终允许」以后不再询问）。注意 OAuth 等待约 5 分钟，超时后重跑 `/login` 即可。
+
 ## 已知限制
 
 | 项 | 说明 |

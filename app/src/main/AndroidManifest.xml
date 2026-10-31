@@ -33,5 +33,11 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="local Linux runtime for MiMo Code" />
         </service>
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|density"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>

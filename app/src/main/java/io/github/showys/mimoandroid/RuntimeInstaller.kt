@@ -26,6 +26,7 @@ class RuntimeInstaller(ctx: Context) {
         copyAsset("runtime/libandroid-shmem.so", File(native, "libandroid-shmem.so"))
         copyAsset("bootstrap/provision.sh", File(bootstrap, "provision.sh"), force = true)
         copyAsset("bootstrap/start-ttyd.sh", File(bootstrap, "start-ttyd.sh"), force = true)
+        copyAsset("bootstrap/setup-userland.sh", File(bootstrap, "setup-userland.sh"), force = true)
 
         if (!File(rootfs, "bin/bash").exists()) {
             log("解包 Ubuntu rootfs（约 1.2 GB，首次较慢）…")
