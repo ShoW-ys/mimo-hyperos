@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/github/license/ShoW-ys/mimo-hyperos" alt="License">
   <img src="https://img.shields.io/badge/platform-Android%208%2B%20arm64-3DDC84?logo=android&logoColor=white" alt="Platform">
   <img src="https://img.shields.io/badge/MiMoCode-0.1.16-ff6900" alt="MiMoCode">
-  <a href="https://github.com/NousResearch/hermes-agent"><img src="docs/badges/hermes.svg" alt="built with Hermes Agent"></a>
+  <a href="https://hermes-agent.nousresearch.com/"><img src="https://img.shields.io/badge/powered_by-Hermes_Agent-6E56CF?style=flat-square" alt="powered by Hermes Agent"></a>
 </p>
 
 # MiMo Terminal — MiMoCode on HyperOS 4 / Android arm64
