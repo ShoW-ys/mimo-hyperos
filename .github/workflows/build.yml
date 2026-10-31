@@ -8,6 +8,9 @@ on:
 jobs:
   unit-test:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      ANDROID_HOME: /usr/local/lib/android/sdk
     steps:
       - uses: actions/checkout@v4
 
@@ -16,10 +19,13 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - uses: android-actions/setup-android@v3
-
       - name: Install SDK packages
-        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+        run: |
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Unit tests
-        run: ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace

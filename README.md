@@ -14,6 +14,11 @@ Android 侧只有一个 WebView + 前台服务。
 |---|---|
 | ![TUI](docs/screenshots/tui.png) | ![login](docs/screenshots/login-xiaomi.png) |
 
+## 下载
+
+- 最新 APK：[Releases](https://github.com/ShoW-ys/mimo-hyperos/releases/latest)（arm64，Android 8.0+）
+- 校验：`sha256sum mimo-hyperos-v0.1.0-arm64.apk` → `d5274f9a0e722d5213ae49c43795f1619cb0d3d94c0b3641443cdcefd9c5b2d2`
+
 ## 构建
 
 ```bash
