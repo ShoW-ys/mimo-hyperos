@@ -13,13 +13,17 @@ mkdir -p /etc/apt/sources.list.d
 : > /etc/apt/sources.list
 cat > /etc/apt/sources.list.d/ubuntu.sources <<EOF
 Types: deb
-URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/
+URIs: http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/
 Suites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates
 Components: main universe
 EOF
 
 echo "STEP apt-update"
 apt-get -o Acquire::Retries=3 update
+
+echo "STEP dpkg-repair"
+dpkg --configure -a || true
+apt-get -y -f install || true
 
 echo "STEP apt-install"
 apt-get -y --no-install-recommends install \
@@ -29,7 +33,7 @@ echo "STEP locale"
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime || true
 
 echo "STEP mimo"
-tar -xzf /mnt/runtime/mimo.tar.gz -C /usr/local/bin
+tar -xzf /mnt/runtime/mimo.tgz -C /usr/local/bin
 chmod 755 /usr/local/bin/mimo
 mkdir -p /root/projects
 /usr/local/bin/mimo --version

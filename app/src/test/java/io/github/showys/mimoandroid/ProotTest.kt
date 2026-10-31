@@ -15,6 +15,7 @@ class ProotTest {
             command = listOf("/bin/sh", "/mnt/bootstrap/provision.sh"),
         )
         assertEquals("/data/app/x/lib/arm64/libproot.so", argv.first())
+        assertTrue(argv.contains("--link2symlink"))
         assertTrue(argv.containsAll(listOf("-0", "-r", "/data/user/0/pkg/files/rootfs", "-w", "/root")))
         assertTrue(argv.containsAll(listOf("-b", "/dev", "-b", "/proc")))
         assertEquals(listOf("/bin/sh", "/mnt/bootstrap/provision.sh"), argv.takeLast(2))

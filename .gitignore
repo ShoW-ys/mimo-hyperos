@@ -2,7 +2,8 @@ build/
 .gradle/
 local.properties
 app/build/
-app/src/main/assets/runtime/*.gz
+app/src/main/assets/runtime/*.tgz
+app/src/main/assets/runtime/*.tar.gz
 app/src/main/assets/runtime/*.so
 app/src/main/assets/runtime/*.so.2
 app/src/main/assets/runtime/manifest.json

@@ -118,19 +118,53 @@ def deb_tar(data):
     raise SystemExit("deb 里没有 data.tar")
 
 
+def materialize_hardlinks(src_path, dst_path):
+    """Android 17 拒绝 app 数据目录里的 hardlink（link() → EACCES），
+    所以把 rootfs 里的硬链接条目展开成独立文件，再打回 tgz。"""
+    src = tarfile.open(src_path, "r:gz")
+    members = src.getmembers()
+    by_name = {m.name.lstrip("./"): m for m in members}
+    out = tarfile.open(dst_path, "w:gz")
+    expanded = 0
+    for m in members:
+        if m.islnk():
+            target = by_name.get(m.linkname.lstrip("./"))
+            if target is None:
+                print(f"  ! hardlink 目标缺失: {m.name} -> {m.linkname}")
+                continue
+            info = tarfile.TarInfo(m.name)
+            info.mode = target.mode
+            info.mtime = target.mtime
+            info.uid, info.gid = m.uid, m.gid
+            info.uname, info.gname = m.uname, m.gname
+            info.size = target.size
+            out.addfile(info, src.extractfile(target))
+            expanded += 1
+        elif m.issym() or m.isreg() or m.isdir():
+            out.addfile(m, src.extractfile(m) if m.isreg() else None)
+        else:
+            out.addfile(m)
+    out.close()
+    src.close()
+    print(f"  hardlink 展开 {expanded} 个 -> {dst_path}")
+
+
 def main():
     os.makedirs(ASSETS, exist_ok=True)
     os.makedirs(JNI, exist_ok=True)
 
-    ubuntu_path = os.path.join(ASSETS, "ubuntu-base.tar.gz")
-    if os.path.exists(ubuntu_path) and sha256(open(ubuntu_path, "rb").read()) == UBUNTU_SHA:
-        print("  cached ubuntu-base.tar.gz")
-    else:
+    ubuntu_src = os.path.join(ASSETS, "ubuntu-base-src.tar.gz")
+    ubuntu_path = os.path.join(ASSETS, "ubuntu-base.tgz")
+    if not (os.path.exists(ubuntu_src) and sha256(open(ubuntu_src, "rb").read()) == UBUNTU_SHA):
         ubuntu = fetch(UBUNTU_URL)
         assert sha256(ubuntu) == UBUNTU_SHA, "ubuntu-base sha256 不匹配"
-        open(ubuntu_path, "wb").write(ubuntu)
+        open(ubuntu_src, "wb").write(ubuntu)
+    if not os.path.exists(ubuntu_path) or os.path.getmtime(ubuntu_path) < os.path.getmtime(ubuntu_src):
+        materialize_hardlinks(ubuntu_src, ubuntu_path)
+    else:
+        print("  cached ubuntu-base.tgz")
 
-    mimo_path = os.path.join(ASSETS, "mimo-linux-arm64.tar.gz")
+    mimo_path = os.path.join(ASSETS, "mimo.tgz")
     if os.path.exists(mimo_path) and sha256(open(mimo_path, "rb").read()) == MIMO_SHA:
         print("  cached mimo-linux-arm64.tar.gz")
     else:
@@ -188,7 +222,7 @@ def main():
     manifest = {
         "mimo_version": MIMO_VERSION,
         "mimo_sha256": MIMO_SHA,
-        "ubuntu": {"file": "ubuntu-base.tar.gz", "sha256": UBUNTU_SHA},
+        "ubuntu": {"file": "ubuntu-base.tgz", "sha256": UBUNTU_SHA},
         "termux": versions,
     }
     with open(os.path.join(ASSETS, "manifest.json"), "w", encoding="utf-8") as fh:

@@ -20,19 +20,19 @@ class RuntimeInstaller(ctx: Context) {
     fun extractIfNeeded(log: (String) -> Unit) {
         listOf(runtime, bootstrap, native, tmp).forEach { it.mkdirs() }
 
-        copyAsset("runtime/ubuntu-base.tar.gz", File(runtime, "ubuntu-base.tar.gz"))
-        copyAsset("runtime/mimo-linux-arm64.tar.gz", File(runtime, "mimo.tar.gz"))
+        copyAsset("runtime/ubuntu-base.tgz", File(runtime, "ubuntu-base.tgz"))
+        copyAsset("runtime/mimo.tgz", File(runtime, "mimo.tgz"))
         copyAsset("runtime/libtalloc.so.2", File(native, "libtalloc.so.2"))
         copyAsset("runtime/libandroid-shmem.so", File(native, "libandroid-shmem.so"))
-        copyAsset("bootstrap/provision.sh", File(bootstrap, "provision.sh"))
-        copyAsset("bootstrap/start-ttyd.sh", File(bootstrap, "start-ttyd.sh"))
+        copyAsset("bootstrap/provision.sh", File(bootstrap, "provision.sh"), force = true)
+        copyAsset("bootstrap/start-ttyd.sh", File(bootstrap, "start-ttyd.sh"), force = true)
 
         if (!File(rootfs, "bin/bash").exists()) {
             log("解包 Ubuntu rootfs（约 1.2 GB，首次较慢）…")
             rootfs.mkdirs()
             val p = ProcessBuilder(
                 "/system/bin/tar", "-xzf",
-                File(runtime, "ubuntu-base.tar.gz").path, "-C", rootfs.path,
+                File(runtime, "ubuntu-base.tgz").path, "-C", rootfs.path,
             ).redirectErrorStream(true).start()
             p.inputStream.bufferedReader().forEachLine { Log.i(Runtime.TAG, "tar: $it") }
             check(p.waitFor() == 0) { "rootfs 解包失败" }
@@ -40,12 +40,20 @@ class RuntimeInstaller(ctx: Context) {
         }
     }
 
-    private fun copyAsset(asset: String, dst: File) {
-        if (dst.exists() && dst.length() > 0) return
+    private fun copyAsset(asset: String, dst: File, force: Boolean = false) {
+        val expected = runCatching { ctx.assets.openFd(asset).use { it.declaredLength } }.getOrNull()
+        if (!force && dst.exists() && dst.length() > 0 && (expected == null || dst.length() == expected)) return
         Log.i(Runtime.TAG, "释放 $asset")
         dst.parentFile?.mkdirs()
-        ctx.assets.open(asset).use { input ->
+        openAsset(asset).use { input ->
             dst.outputStream().use { out -> input.copyTo(out, 1 shl 20) }
         }
+    }
+
+    /** aapt 在老版本行为下会把 .gz 资源改名去掉后缀，这里两种名字都试。 */
+    private fun openAsset(asset: String): java.io.InputStream = try {
+        ctx.assets.open(asset)
+    } catch (_: java.io.FileNotFoundException) {
+        ctx.assets.open(asset.removeSuffix(".gz"))
     }
 }

@@ -23,6 +23,9 @@ object Proot {
     ): List<String> = buildList {
         add("$nativeDir/libproot.so")
         add("--kill-on-exit")
+        // Android 17 / HyperOS 拒绝 app 数据目录里的 hardlink（link() → EACCES），
+        // dpkg 的备份链接会因此失败；proot 用符号链接模拟硬链接。
+        add("--link2symlink")
         add("-0")                       // 假 root：只伪造 uid，不提权
         add("-r"); add(rootfs)
         add("-w"); add(workdir)

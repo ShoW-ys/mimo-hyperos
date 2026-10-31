@@ -24,6 +24,11 @@ android {
         }
     }
 
+    androidResources {
+        // aapt 会把 .gz 资源改名（去掉后缀），所以资产统一用 .tgz
+        noCompress += listOf("tgz")
+    }
+
     buildTypes {
         debug { isMinifyEnabled = false }
         release {
