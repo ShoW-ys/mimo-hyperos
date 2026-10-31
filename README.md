@@ -1,4 +1,15 @@
+<p align="center">
+  <a href="https://github.com/ShoW-ys/mimo-hyperos/actions/workflows/build.yml"><img src="https://github.com/ShoW-ys/mimo-hyperos/actions/workflows/build.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/ShoW-ys/mimo-hyperos/releases/latest"><img src="https://img.shields.io/github/v/release/ShoW-ys/mimo-hyperos?display_name=tag" alt="Release"></a>
+  <img src="https://img.shields.io/github/license/ShoW-ys/mimo-hyperos" alt="License">
+  <img src="https://img.shields.io/badge/platform-Android%208%2B%20arm64-3DDC84?logo=android&logoColor=white" alt="Platform">
+  <img src="https://img.shields.io/badge/MiMoCode-0.1.16-ff6900" alt="MiMoCode">
+  <a href="https://github.com/NousResearch/hermes-agent"><img src="docs/badges/hermes.svg" alt="built with Hermes Agent"></a>
+</p>
+
 # MiMo 终端（MiMoCode for HyperOS 4 / Android arm64）
+
+简体中文 | [English](README.en.md)
 
 把小米 MiMoCode（`mimo`）打包成可侧载安装的 APK：APK 内自带 Ubuntu 24.04 rootfs + MiMoCode 二进制，
 用 `proot` 在无 root 的 Android 上跑 glibc 用户态，`ttyd` 把原版 TUI 暴露在 `127.0.0.1:<随机端口>`，
