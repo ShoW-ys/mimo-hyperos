@@ -1,6 +1,14 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+// 签名参数只从 local.properties（已 gitignore）读取，仓库里不出现密钥
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -14,6 +22,17 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         ndk { abiFilters += "arm64-v8a" }
+    }
+
+    signingConfigs {
+        if (localProps.getProperty("RELEASE_STORE_FILE") != null) {
+            create("release") {
+                storeFile = file(localProps.getProperty("RELEASE_STORE_FILE"))
+                storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD")
+                keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS")
+                keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD")
+            }
+        }
     }
 
     packaging {
@@ -33,7 +52,7 @@ android {
         debug { isMinifyEnabled = false }
         release {
             isMinifyEnabled = false
-            // Phase 7 再配置签名；先保证 assembleRelease 可产出未签名包
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
 

@@ -1,0 +1,41 @@
+name: Bug report
+description: 报告一个可复现的问题
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先看 docs/troubleshooting.md。贴日志时请删掉 API Key、Token、账号信息。
+  - type: input
+    id: device
+    attributes:
+      label: 设备与系统
+      placeholder: "Xiaomi Pad 9 Pro Max (M367FC), HyperOS 4.0 / Android 17, arm64"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: APK 版本
+      placeholder: "v0.1.0"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: "1. 打开应用\n2. 输入 /login\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志（可选）
+      description: "adb logcat -d -s MiMoRuntime:I | tail -50"
+      render: shell

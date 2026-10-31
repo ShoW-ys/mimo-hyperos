@@ -1,0 +1,24 @@
+name: Feature request
+description: 想要的能力或改进
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 想要什么
+      description: 一句话说清目标，再说为什么现在做不到。
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: 可能的实现思路（可选）
+      description: 例如「用 SAF 导入目录」「接 bun 跑插件」。
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 影响面
+      options:
+        - label: 需要改 guest（rootfs / provision）
+        - label: 需要改 Android 侧（Kotlin / WebView）
+        - label: 需要改文档

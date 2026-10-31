@@ -49,6 +49,11 @@ class RuntimeInstaller(ctx: Context) {
         openAsset(asset).use { input ->
             dst.outputStream().use { out -> input.copyTo(out, 1 shl 20) }
         }
+        // Windows 上被转成 CRLF 的 .sh 在 dash 里会 `set: Illegal option -`，这里强制 LF
+        if (dst.name.endsWith(".sh")) {
+            val text = dst.readText().replace("\r\n", "\n")
+            dst.writeText(text)
+        }
     }
 
     /** aapt 在老版本行为下会把 .gz 资源改名去掉后缀，这里两种名字都试。 */
